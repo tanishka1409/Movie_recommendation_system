@@ -11,8 +11,11 @@ This repository hosts an advanced movie recommendation system developed with Pyt
 
 ### Backend Technologies:
 **Pandas** for data manipulation and analysis.
+
 **Scikit-learn** for feature extraction and similarity computation.
+
 **NLTK** for natural language processing.
+
 **Ast** for safely evaluating strings containing Python literal structures.
 
 ### Frontend Technologies:
