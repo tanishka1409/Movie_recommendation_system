@@ -10,14 +10,14 @@ This repository hosts an advanced movie recommendation system developed with Pyt
 - **Similarity-Based Recommendations:** Employs cosine similarity to find movies that closely match the user's preferences. <br />
 
 ### Backend Technologies:
-**Pandas** for data manipulation and analysis. <br />
-**Scikit-learn** for feature extraction and similarity computation. <br />
-**NLTK** for natural language processing. <br />
-**Ast** for safely evaluating strings containing Python literal structures. <br />
+- **Pandas** for data manipulation and analysis. <br />
+- **Scikit-learn** for feature extraction and similarity computation. <br />
+- **NLTK** for natural language processing. <br />
+- **Ast** for safely evaluating strings containing Python literal structures. <br />
 
 ### Frontend Technologies:
-**Streamlit** for creating the web app. <br />
-**Requests for API calls** to fetch movie posters and additional details. <br />
+- **Streamlit** for creating the web app. <br />
+- **Requests for API calls** to fetch movie posters and additional details. <br />
 
 ## Getting Started:
 - Clone this repository.
