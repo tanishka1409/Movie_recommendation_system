@@ -4,7 +4,7 @@ In this busy world, entertainment has become a necessity to seek escape from the
 Recommendation systems are tools designed to predict or filter the items according to the behavior of any user. Movie recommendation systems aim at helping out the movie enthusiasts by suggesting which movie to watch without having to go through the long process of choosing through a large dataset since the process is confusing as well as time consuming. <br />
 We’ve tried implementing a model which uses a content based approach to provide movie recommendations to any user. Content based approach uses tags to recommend other items similar to what user likes, based on their provided input of previous actions. Since data recommendations are specific to a user, this type of filtering makes it easier to capture the specific interests of a user.
 
-
+![](Movie_recommendation_system/Main%20page.png)
 
 ## Key Features:
 - **Personalized Recommendations:** Users can discover movies tailored to their tastes, based on genres, keywords, cast, and crew. <br />
