@@ -1,0 +1,147 @@
+<html>
+<head>
+<title>app.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cc7832;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #6a8759;}
+.s3 { color: #808080;}
+.s4 { color: #6897bb;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+app.py</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">streamlit </span><span class="s0">as </span><span class="s1">st</span>
+<span class="s0">import </span><span class="s1">pickle</span>
+<span class="s0">import </span><span class="s1">pandas </span><span class="s0">as </span><span class="s1">pd</span>
+<span class="s0">import </span><span class="s1">requests</span>
+
+
+<span class="s0">def </span><span class="s1">process_genre(genre):</span>
+    <span class="s1">genre1 = []</span>
+
+    <span class="s0">for </span><span class="s1">g </span><span class="s0">in </span><span class="s1">genre:</span>
+        <span class="s1">genre1.append(g[</span><span class="s2">'name'</span><span class="s1">])</span>
+
+    <span class="s0">return </span><span class="s2">&quot;, &quot;</span><span class="s1">.join(genre1)</span>
+
+<span class="s0">def </span><span class="s1">get_movie_info(id):</span>
+    <span class="s1">response = requests.get(</span><span class="s2">'https://api.themoviedb.org/3/movie/{}?api_key=8265bd1679663a7ea12ac168da84d2e8&amp;language=en-US'</span><span class="s1">.format(id))</span>
+    <span class="s1">data = response.json()</span>
+    <span class="s3">#movie_info = movie_detail()</span>
+    <span class="s1">overview = data[</span><span class="s2">'overview'</span><span class="s1">]</span>
+    <span class="s1">title = data[</span><span class="s2">'original_title'</span><span class="s1">]</span>
+    <span class="s1">genres = data[</span><span class="s2">'genres'</span><span class="s1">]</span>
+    <span class="s0">return </span><span class="s1">overview</span><span class="s0">, </span><span class="s1">title</span><span class="s0">, </span><span class="s1">genres</span>
+
+<span class="s0">def </span><span class="s1">fetch_poster(id):</span>
+    <span class="s1">movie_info = {</span><span class="s2">'poster_path'</span><span class="s1">: </span><span class="s2">&quot;&quot;</span><span class="s0">, </span><span class="s2">'id'</span><span class="s1">: -</span><span class="s4">1</span><span class="s1">}</span>
+    <span class="s1">response = requests.get(</span><span class="s2">'https://api.themoviedb.org/3/movie/{}?api_key=8265bd1679663a7ea12ac168da84d2e8&amp;language=en-US'</span><span class="s1">.format(id))</span>
+    <span class="s1">data = response.json()</span>
+    <span class="s1">movie_info[</span><span class="s2">'poster_path'</span><span class="s1">] = </span><span class="s2">'https://image.tmdb.org/t/p/w500/' </span><span class="s1">+ data[</span><span class="s2">'poster_path'</span><span class="s1">]</span>
+    <span class="s1">movie_info[</span><span class="s2">'id'</span><span class="s1">] = data[</span><span class="s2">'id'</span><span class="s1">]</span>
+    <span class="s0">return </span><span class="s1">movie_info</span>
+
+<span class="s0">def </span><span class="s1">recommend(obj):</span>
+     <span class="s1">index = movies[movies[</span><span class="s2">'title'</span><span class="s1">] == obj].index[</span><span class="s4">0</span><span class="s1">]</span>
+     <span class="s1">distances = similarity[index]</span>
+     <span class="s1">movies_list = sorted(list(enumerate(distances))</span><span class="s0">, </span><span class="s1">reverse=</span><span class="s0">True, </span><span class="s1">key=</span><span class="s0">lambda </span><span class="s1">x: x[</span><span class="s4">1</span><span class="s1">])[</span><span class="s4">1</span><span class="s1">:</span><span class="s4">6</span><span class="s1">]</span>
+
+     <span class="s1">recommended_movies = []</span>
+     <span class="s1">recommended_movies_posters = []</span>
+     <span class="s0">for </span><span class="s1">i </span><span class="s0">in </span><span class="s1">movies_list:</span>
+         <span class="s1">id = movies.iloc[i[</span><span class="s4">0</span><span class="s1">]].id</span>
+
+         <span class="s1">recommended_movies.append(movies.iloc[i[</span><span class="s4">0</span><span class="s1">]].title)</span>
+         <span class="s3"># fetch poster from API</span>
+         <span class="s1">recommended_movies_posters.append(fetch_poster(id))</span>
+     <span class="s0">return </span><span class="s1">recommended_movies</span><span class="s0">,</span><span class="s1">recommended_movies_posters</span>
+
+<span class="s1">movies_dict = pickle.load(open(</span><span class="s2">'movie_dict.pkl'</span><span class="s0">,</span><span class="s2">'rb'</span><span class="s1">))</span>
+<span class="s1">movies = pd.DataFrame(movies_dict)</span>
+
+
+<span class="s1">similarity = pickle.load(open(</span><span class="s2">'similarity.pkl'</span><span class="s0">,</span><span class="s2">'rb'</span><span class="s1">))</span>
+
+<span class="s1">st.title(</span><span class="s2">'Movie Recommender System'</span><span class="s1">)</span>
+<span class="s1">st.caption(</span><span class="s2">&quot;Please type or select a movie to get recommendations and additional information&quot;</span><span class="s1">)</span>
+
+
+<span class="s1">selected_movie_name = st.selectbox(</span>
+<span class="s2">'Enter the movie'</span><span class="s0">,</span>
+<span class="s1">movies[</span><span class="s2">'title'</span><span class="s1">].values)</span>
+
+
+
+<span class="s0">if </span><span class="s1">st.button(</span><span class="s2">'Recommend'</span><span class="s0">, </span><span class="s1">key=</span><span class="s2">'main'</span><span class="s1">):</span>
+       <span class="s1">names</span><span class="s0">,</span><span class="s1">posters = recommend(selected_movie_name)</span>
+
+       <span class="s1">col1</span><span class="s0">, </span><span class="s1">col2</span><span class="s0">, </span><span class="s1">col3</span><span class="s0">, </span><span class="s1">col4</span><span class="s0">, </span><span class="s1">col5 = st.columns(</span><span class="s4">5</span><span class="s1">)</span>
+       <span class="s0">with </span><span class="s1">col1:</span>
+           <span class="s1">st.image(posters[</span><span class="s4">0</span><span class="s1">][</span><span class="s2">'poster_path'</span><span class="s1">])</span>
+           <span class="s1">st.markdown(</span><span class="s2">&quot;**&quot;</span><span class="s1">+names[</span><span class="s4">0</span><span class="s1">]+</span><span class="s2">&quot;**&quot;</span><span class="s1">)</span>
+           <span class="s1">overview</span><span class="s0">, </span><span class="s1">title</span><span class="s0">, </span><span class="s1">genres = get_movie_info(posters[</span><span class="s4">0</span><span class="s1">][</span><span class="s2">'id'</span><span class="s1">])</span>
+           <span class="s1">st.markdown(</span><span class="s2">'**Overview**'</span><span class="s1">)</span>
+           <span class="s1">st.write(overview)</span>
+           <span class="s1">st.markdown(</span><span class="s2">'**Genres**'</span><span class="s1">)</span>
+           <span class="s1">st.write(process_genre(genres))</span>
+           <span class="s3">#if st.button('more info', key = '1'):</span>
+               <span class="s3">#overview, title, genres = get_movie_info(posters[0]['id'])</span>
+               <span class="s3">#st.markdown('**Overview**')</span>
+               <span class="s3">#st.write(overview)</span>
+               <span class="s3">#st.markdown('**Genres**')</span>
+               <span class="s3">#st.write(process_genre(genres))</span>
+
+
+       <span class="s0">with </span><span class="s1">col2:</span>
+           <span class="s1">st.image(posters[</span><span class="s4">1</span><span class="s1">][</span><span class="s2">'poster_path'</span><span class="s1">])</span>
+           <span class="s1">st.markdown(</span><span class="s2">&quot;**&quot;</span><span class="s1">+names[</span><span class="s4">1</span><span class="s1">]+</span><span class="s2">&quot;**&quot;</span><span class="s1">)</span>
+           <span class="s1">overview</span><span class="s0">, </span><span class="s1">title</span><span class="s0">, </span><span class="s1">genres = get_movie_info(posters[</span><span class="s4">1</span><span class="s1">][</span><span class="s2">'id'</span><span class="s1">])</span>
+           <span class="s1">st.markdown(</span><span class="s2">'**Overview**'</span><span class="s1">)</span>
+           <span class="s1">st.write(overview)</span>
+           <span class="s1">st.markdown(</span><span class="s2">'**Genres**'</span><span class="s1">)</span>
+           <span class="s1">st.write(process_genre(genres))</span>
+           <span class="s3">#if st.button('more info', key = '2'):</span>
+               <span class="s3">#overview, title, genres = get_movie_info(posters[1]['id'])</span>
+               <span class="s3">#st.markdown('**Overview**')</span>
+               <span class="s3">#st.write(overview)</span>
+               <span class="s3">#st.markdown('**Genres**')</span>
+               <span class="s3">#st.write(process_genre(genres))</span>
+
+
+       <span class="s0">with </span><span class="s1">col3:</span>
+           <span class="s1">st.image(posters[</span><span class="s4">2</span><span class="s1">][</span><span class="s2">'poster_path'</span><span class="s1">])</span>
+           <span class="s1">st.markdown(</span><span class="s2">&quot;**&quot;</span><span class="s1">+names[</span><span class="s4">2</span><span class="s1">]+</span><span class="s2">&quot;**&quot;</span><span class="s1">)</span>
+           <span class="s1">overview</span><span class="s0">, </span><span class="s1">title</span><span class="s0">, </span><span class="s1">genres = get_movie_info(posters[</span><span class="s4">2</span><span class="s1">][</span><span class="s2">'id'</span><span class="s1">])</span>
+           <span class="s1">st.markdown(</span><span class="s2">'**Overview**'</span><span class="s1">)</span>
+           <span class="s1">st.write(overview)</span>
+           <span class="s1">st.markdown(</span><span class="s2">'**Genres**'</span><span class="s1">)</span>
+           <span class="s1">st.write(process_genre(genres))</span>
+
+       <span class="s0">with </span><span class="s1">col4:</span>
+           <span class="s1">st.image(posters[</span><span class="s4">3</span><span class="s1">][</span><span class="s2">'poster_path'</span><span class="s1">])</span>
+           <span class="s1">st.markdown(</span><span class="s2">&quot;**&quot;</span><span class="s1">+names[</span><span class="s4">3</span><span class="s1">]+</span><span class="s2">&quot;**&quot;</span><span class="s1">)</span>
+           <span class="s1">overview</span><span class="s0">, </span><span class="s1">title</span><span class="s0">, </span><span class="s1">genres = get_movie_info(posters[</span><span class="s4">3</span><span class="s1">][</span><span class="s2">'id'</span><span class="s1">])</span>
+           <span class="s1">st.markdown(</span><span class="s2">'**Overview**'</span><span class="s1">)</span>
+           <span class="s1">st.write(overview)</span>
+           <span class="s1">st.markdown(</span><span class="s2">'**Genres**'</span><span class="s1">)</span>
+           <span class="s1">st.write(process_genre(genres))</span>
+
+       <span class="s0">with </span><span class="s1">col5:</span>
+           <span class="s1">st.image(posters[</span><span class="s4">4</span><span class="s1">][</span><span class="s2">'poster_path'</span><span class="s1">])</span>
+           <span class="s1">st.markdown(</span><span class="s2">&quot;**&quot;</span><span class="s1">+names[</span><span class="s4">4</span><span class="s1">]+</span><span class="s2">&quot;**&quot;</span><span class="s1">)</span>
+           <span class="s1">overview</span><span class="s0">, </span><span class="s1">title</span><span class="s0">, </span><span class="s1">genres = get_movie_info(posters[</span><span class="s4">4</span><span class="s1">][</span><span class="s2">'id'</span><span class="s1">])</span>
+           <span class="s1">st.markdown(</span><span class="s2">'**Overview**'</span><span class="s1">)</span>
+           <span class="s1">st.write(overview)</span>
+           <span class="s1">st.markdown(</span><span class="s2">'**Genres**'</span><span class="s1">)</span>
+           <span class="s1">st.write(process_genre(genres))</span>
+
+
+</pre>
+</body>
+</html>
